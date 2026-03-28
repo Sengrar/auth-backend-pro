@@ -303,7 +303,7 @@ const changePassword = async (req,res)=>{
   }
 };
 
-export const verifyOTP = async (req, res) => {
+const verifyOTP = async (req, res) => {
 
   try {
 
