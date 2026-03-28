@@ -232,6 +232,73 @@ const resetPassword = async (req, res) => {
       message: error.message
     })
   }
-}
+};
 
-module.exports = { register, login, logout, forgotPassword, resetPassword };
+const changePassword = async (req,res)=>{
+  try {
+    const {oldPassword} = req.body;
+    const {newPassword} = req.body;
+    const {confirmPassword} = req.body;
+
+    if(!oldPassword || !newPassword || !confirmPassword){
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required"
+      });
+    }
+
+    if(newPassword !== confirmPassword){
+      return res.status(400).json({
+        success: false,
+        message: "Passwords do not match"
+      });
+    }
+
+    if(oldPassword === newPassword){
+      return res.status(400).json({
+        success: false,
+        message: "New password must be different form old password"
+      });
+    }
+
+    let passRegex = /^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$/;
+
+
+    if (!passRegex.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message: "8 characters length,2 letters in Upper Case,1 Special Character (!@#$&*),2 numerals (0-9),3 letters in Lower Case"
+      })
+    }    
+
+    const user = await User.findById(req.user._id);
+    console.log(user);
+    
+
+    const isMatch = await bcryptjs.compare(oldPassword, user.password);
+    if(!isMatch){
+      return res.status(401).json({
+        success: false,
+        message: "Invalid old password"
+      });
+    }
+
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully"
+    })
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+module.exports = { register, login, logout, forgotPassword, resetPassword, changePassword };

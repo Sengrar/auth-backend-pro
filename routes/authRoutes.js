@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {register, login, logout, forgotPassword, resetPassword} = require('../controller/authController')
+const {register, login, logout, forgotPassword, resetPassword, changePassword} = require('../controller/authController')
 const protect = require('../middleware/protect')
 const {PERMISSIONS} = require('../config/roles')
 const authorizationPermission = require('../middleware/authorizationPermission')
@@ -10,6 +10,8 @@ router.post('/logout', logout)
 
 router.post('/forgot-password', forgotPassword)
 router.post('/reset-password/:token', resetPassword)
+
+router.post('/change-password', protect, changePassword)
 
 router.get('/profile',protect,(req,res)=>{
     res.status(200).json({
