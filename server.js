@@ -18,5 +18,5 @@ res.send("Welcome to Auth backend")
 app.use('/api/auth',authRoutes)
 
 app.listen(PORT,()=>{
-    console.log(`server is running on ${PORT}`)
+    console.log(`server is running on http://localhost:${PORT}`)
 })

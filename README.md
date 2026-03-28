@@ -73,6 +73,8 @@ AUTH_BACKEND
 * bcrypt
 * jsonwebtoken
 * cookie-parser
+* crypto
+* nodemailer
 * express-validator
 
 ---
