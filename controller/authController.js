@@ -3,6 +3,8 @@ const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("node:crypto");
 const sendEmail = require("../utils/sendEmail");
+const generateOTP = require("../utils/generateOTP");
+// const otp = generateOTP();
 
 const register = async (req, res) => {
   try {
@@ -301,4 +303,45 @@ const changePassword = async (req,res)=>{
   }
 };
 
-module.exports = { register, login, logout, forgotPassword, resetPassword, changePassword };
+export const verifyOTP = async (req, res) => {
+
+  try {
+
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    if (user.otp !== otp || user.otpExpire < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP"
+      });
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully"
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+module.exports = { register, login, logout, forgotPassword, resetPassword, changePassword, verifyOTP };
